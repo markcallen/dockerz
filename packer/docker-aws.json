@@ -1,0 +1,65 @@
+{
+  "variables": {
+    "aws_default_region": "{{env `AWS_DEFAULT_REGION`}}",
+    "aws_vpc_id": "{{env `AWS_VPC_ID`}}",
+    "aws_subnet_id": "{{env `AWS_SUBNET_ID`}}",
+    "aws_security_group_id": "{{env `AWS_SECURITY_GROUP_ID`}}",
+    "pwd": "{{env `PWD`}}"
+  },
+  "builders": [
+    {
+      "ami_name": "dockerz {{isotime \"2006-01-02-030405\"}}",
+      "ami_virtualization_type": "hvm",
+      "associate_public_ip_address": "true",
+      "instance_type": "t2.small",
+      "region": "{{user `aws_default_region`}}",
+      "vpc_id": "{{user `aws_vpc_id`}}",
+      "subnet_id": "{{user `aws_subnet_id`}}",
+      "source_ami_filter": {
+        "filters": {
+          "name": "*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs",
+          "virtualization-type": "hvm"
+        },
+        "most_recent": true
+      },
+      "ssh_username": "ubuntu",
+      "tags": {
+        "OS_Version": "Ubuntu",
+        "Release": "16.04"
+      },
+      "type": "amazon-ebs",
+      "security_group_ids": [ "{{user `aws_security_group_id`}}" ]
+    }
+  ],
+  "post-processors": null,
+  "provisioners": [
+    {
+      "destination": "/tmp/docker.options",
+      "source": "{{user `pwd`}}/docker.options",
+      "type": "file"
+    },
+    {
+      "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
+      "inline": [
+        "apt-get update",
+        "apt-get install curl linux-image-extra-$(uname -r) linux-image-extra-virtual",
+        "apt-get install apt-transport-https software-properties-common ca-certificates",
+        "curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -",
+        "sudo add-apt-repository \"deb https://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main\"",
+        "apt-get update",
+        "apt-get -y install docker-engine",
+        "mkdir -p /etc/systemd/system/docker.service.d",
+        "mv /tmp/docker.options /etc/systemd/system/docker.service.d/docker.conf",
+        "systemctl enable docker.service",
+        "usermod -aG docker ubuntu",
+        "apt-get install -y apt-transport-https software-properties-common",
+        "add-apt-repository -y \"deb https://clusterhq-archive.s3.amazonaws.com/ubuntu/$(lsb_release --release --short)/\\$(ARCH) /\"",
+        "mv /tmp/apt-pref /etc/apt/preferences.d/buildbot-700",
+        "apt-get update",
+        "apt-get -y --allow-unauthenticated install clusterhq-flocker-node clusterhq-flocker-docker-plugin"
+      ],
+      "type": "shell"
+    }
+  ]
+}
