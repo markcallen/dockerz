@@ -16,6 +16,9 @@ variable "ssh_key_filename" {
 variable "z_zone_id" {
 }
 
+variable "certificate" {
+}
+
 variable "amis" {
   type = "map"
 }
@@ -39,3 +42,4 @@ variable "cluster_control_count" {
     description = "Number of service control instances for the flocker cluster."
     default = 1
 }
+

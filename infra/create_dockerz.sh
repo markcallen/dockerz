@@ -31,6 +31,13 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
+CERTIFICATE_ARN=$(aws acm list-certificates --query 'CertificateSummaryList[*].[DomainName, CertificateArn]' --output text | grep swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} | cut -f2)
+
+if [ -z ${CERTIFICATE_ARN} ]; then
+  echo "Need to create a wildcard certificate for swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}"
+  exit 1;
+fi
+
 if [ -d ../flocker-openssl ]; then
   pushd ../flocker-openssl && git pull && popd
 else
@@ -67,6 +74,7 @@ fi
 
 CA_CENTRAL1_AMI=$(aws ec2 describe-images --owners self --filters "Name=name,Values=dockerz*" --query 'Images[*].[ImageId,Name,CreationDate]' --output text | sort -k 3 -r | head -1 | awk '{print $1'})
 
+
 Z_ZONE_QUERY='HostedZones[?ends_with(`'"$Z_DOMAIN."'`,Name)].Id'
 Z_ZONE_ID=$(aws route53 list-hosted-zones --query $Z_ZONE_QUERY --output text)
 
@@ -80,4 +88,5 @@ terraform $1 -var aws_region=${AWS_DEFAULT_REGION} \
              -var vpc_key=dockerz \
 	     -var cluster_manager_count=1 \
 	     -var cluster_node_count=2 \
+   	     -var certificate=${CERTIFICATE_ARN} \
 	     -var cluster_control_count=1

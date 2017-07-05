@@ -13,15 +13,6 @@ resource "aws_security_group" "flocker" {
   }
 
   ingress {
-      from_port   = 4523
-      to_port     = 4524
-      protocol    = "tcp"
-      cidr_blocks = [
-        "0.0.0.0/0"
-      ]
-  }
-
-  ingress {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"

@@ -7,45 +7,35 @@ resource "aws_security_group" "swarm" {
       from_port   = 2375
       to_port     = 2377
       protocol    = "tcp"
-      cidr_blocks = [
-        "${aws_vpc.vpc.cidr_block}"
-      ]
+      self        = true
   }
 
   ingress {
       from_port   = 7946
       to_port     = 7946
       protocol    = "tcp"
-      cidr_blocks = [
-        "${aws_vpc.vpc.cidr_block}"
-      ]
+      self        = true
   }
 
   ingress {
       from_port   = 7946
       to_port     = 7946
       protocol    = "udp"
-      cidr_blocks = [
-        "${aws_vpc.vpc.cidr_block}"
-      ]
+      self        = true
   }
 
   ingress {
       from_port   = 4789
       to_port     = 4789
       protocol    = "tcp"
-      cidr_blocks = [
-        "${aws_vpc.vpc.cidr_block}"
-      ]
+      self        = true
   }
 
   ingress {
       from_port   = 4789
       to_port     = 4789
       protocol    = "udp"
-      cidr_blocks = [
-        "${aws_vpc.vpc.cidr_block}"
-      ]
+      self        = true
   }
 
   ingress {
@@ -58,8 +48,8 @@ resource "aws_security_group" "swarm" {
   }
 
   ingress {
-      from_port   = 8080
-      to_port     = 8080
+      from_port   = 8000
+      to_port     = 8001
       protocol    = "tcp"
       security_groups      = [
         "${aws_security_group.loadbalancer.id}"
