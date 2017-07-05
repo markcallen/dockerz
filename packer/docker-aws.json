@@ -43,21 +43,15 @@
       "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
       "inline": [
         "apt-get update",
-        "apt-get install curl linux-image-extra-$(uname -r) linux-image-extra-virtual",
-        "apt-get install apt-transport-https software-properties-common ca-certificates",
-        "curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -",
-        "sudo add-apt-repository \"deb https://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main\"",
+        "apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual",
+        "apt-get install -y apt-transport-https software-properties-common curl ca-certificates",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+        "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
         "apt-get update",
-        "apt-get -y install docker-engine",
-        "mkdir -p /etc/systemd/system/docker.service.d",
-        "mv /tmp/docker.options /etc/systemd/system/docker.service.d/docker.conf",
-        "systemctl enable docker.service",
+        "apt-get install -y docker-ce",
+        "groupadd docker",
         "usermod -aG docker ubuntu",
-        "apt-get install -y apt-transport-https software-properties-common",
-        "add-apt-repository -y \"deb https://clusterhq-archive.s3.amazonaws.com/ubuntu/$(lsb_release --release --short)/\\$(ARCH) /\"",
-        "mv /tmp/apt-pref /etc/apt/preferences.d/buildbot-700",
-        "apt-get update",
-        "apt-get -y --allow-unauthenticated install clusterhq-flocker-node clusterhq-flocker-docker-plugin"
+        "systemctl enable docker"
       ],
       "type": "shell"
     }
