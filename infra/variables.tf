@@ -4,6 +4,9 @@ variable "aws_region" {
 variable "z_region" {
 }
 
+variable "z_network" {
+}
+
 variable "z_domain" {
 }
 
@@ -19,13 +22,15 @@ variable "z_zone_id" {
 variable "certificate" {
 }
 
+variable "vpc_cidr_block" {
+}
+
 variable "amis" {
   type = "map"
 }
 
 variable "vpc_key" {
   description = "A unique identifier for the VPC."
-  default     = "dockerz"
 }
 
 variable "cluster_manager_count" {
@@ -33,13 +38,13 @@ variable "cluster_manager_count" {
     default = 1
 }
 
-variable "cluster_node_count" {
-    description = "Number of node instances for the swarm cluster."
-    default = 1
+variable "cluster_storage_count" {
+    description = "Number of storage instances for the swarm cluster."
+    default = 3
 }
 
-variable "cluster_control_count" {
-    description = "Number of service control instances for the flocker cluster."
+variable "cluster_node_count" {
+    description = "Number of node instances for the swarm cluster."
     default = 1
 }
 

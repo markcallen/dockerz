@@ -1,0 +1,70 @@
+---
+- hosts: managers storage
+
+  tasks:
+  - name: install glusterfs
+    apt:
+      name: glusterfs-server
+      update_cache: yes
+    notify:
+    - restart glusterfs-server
+
+  - name: Creates /gluster/data
+    file:
+      path: /gluster/data
+      state: directory
+      mode: 0775
+      recurse: yes
+
+  - name: Creates /swarm/volumes
+    file:
+      path: /swarm/volumes
+      state: directory
+      mode: 0775
+      recurse: yes
+
+  - name: Create filesystem
+    filesystem:
+      fstype: xfs
+      dev: /dev/xvdd
+
+  - name: Mount /dev/xvdd
+    mount:
+      name: /gluster/data
+      src: /dev/xvdd
+      fstype: xfs
+      state: mounted
+
+  - name: Creates /gluster/data/swarm-vols
+    file:
+      path: /gluster/data/swarm-vols
+      state: directory
+      mode: 0775
+      recurse: yes
+    run_once: true
+
+  - name: create gluster volume
+    gluster_volume: state=present name=swarm-vols bricks=/gluster/data/swarm-vols rebalance=yes cluster={{groups.storage_nodes | join(",")}}
+    run_once: true
+
+  - name: tune gluster volume
+    shell: gluster volume set swarm-vols auth.allow 127.0.0.1
+    run_once: true
+
+  - name: start gluster volume
+    gluster_volume:
+      state: started
+      name: swarm-vols
+    run_once: true
+
+  - name: Mount on /swarm/volumes
+    mount:
+      name: /swarm/volumes
+      src: localhost:/swarm-vols
+      fstype: glusterfs
+      state: mounted
+
+  handlers:
+    - name: restart glusterfs-server
+      systemd: state=started name=glusterfs-server
+

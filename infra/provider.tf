@@ -6,8 +6,8 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.vpc.id}"
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-ig"
-    ZREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-ig"
+    Z_REGION = "${var.z_region}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -39,8 +39,9 @@ resource "aws_network_acl" "network" {
   }
 
   tags {
-    Name = "${var.vpc_key}-network"
-    ZREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-network"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -55,8 +56,9 @@ resource "aws_route_table" "main" {
   }
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-route"
-    ZEGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-route"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -86,8 +88,9 @@ resource "aws_subnet" "a" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-a"
-    ZREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-a"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -100,8 +103,9 @@ resource "aws_subnet" "b" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-b"
-    ZREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-b"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -115,8 +119,8 @@ resource "aws_subnet" "d" {
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-d"
-    ZREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-d"
+    Z_REGION = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -124,20 +128,21 @@ resource "aws_subnet" "d" {
 */
 
 resource "aws_vpc" "vpc" {
-  cidr_block           = "10.100.0.0/16"
+  cidr_block           = "${var.vpc_cidr_block}"
   enable_dns_hostnames = true
   enable_dns_support   = true
   instance_tenancy     = "default"
 
   tags {
+    Name = "${var.z_network}-${var.z_region}-vpc"
     VPC = "${var.vpc_key}"
-    ZREGION = "${var.z_region}"
-    Name = "${var.vpc_key}-${var.z_region}-vpc"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     Terraform = "Terraform"
   }
 }
 
-/* this is here for future reference if the mgmt network every comes on line
+/* TODO: this is here for future reference if the mgmt network every comes on line
 resource "aws_vpc_peering_connection" "app-mgmt" {
   vpc_id = "${aws_vpc.vpc.id}"
   peer_vpc_id = "${var.mgmt_vpc_id}"

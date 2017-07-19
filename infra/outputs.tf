@@ -28,15 +28,21 @@ output "sg_swarm" {
 output "swarm_managers" {
   value = "${concat(aws_instance.swarm-manager.*.public_dns)}"
 }
-output "swarm_nodes" {
-  value = "${concat(aws_instance.swarm-node.*.public_dns)}"
+output "swarm_storage" {
+  value = "${concat(aws_instance.swarm-storage.*.public_dns)}"
+}
+output "swarm_app" {
+  value = "${concat(aws_instance.swarm-app.*.public_dns)}"
 }
 
-output "sg_flocker" {
-  value = "${aws_security_group.flocker.id}"
+output "swarm_managers_private" {
+  value = "${concat(aws_instance.swarm-manager.*.private_ip)}"
 }
-output "flocker_controls" {
-  value = "${concat(aws_instance.flocker-control.*.public_dns)}"
+output "swarm_storage_private" {
+  value = "${concat(aws_instance.swarm-storage.*.private_ip)}"
+}
+output "swarm_app_private" {
+  value = "${concat(aws_instance.swarm-app.*.private_ip)}"
 }
 
 output "elb" {

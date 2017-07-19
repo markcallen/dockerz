@@ -1,15 +1,15 @@
 
 resource "aws_route53_zone" "zdomain-vpc" {
-  name = "${var.vpc_key}.${var.z_region}.${var.z_domain}"
+  name = "${var.z_network}.${var.z_region}.${var.z_domain}"
   vpc_id = "${aws_vpc.vpc.id}"
   tags {
-    Environment = "${var.vpc_key}.${var.z_region}"
+    Environment = "${var.z_network}.${var.z_region}"
   }
 }
 
 resource "aws_route53_record" "zdomain-vpc-ns" {
     zone_id = "${var.z_zone_id}"  
-    name = "${var.vpc_key}.${var.z_region}.${var.z_domain}"
+    name = "${var.z_network}.${var.z_region}.${var.z_domain}"
     type = "NS"
     ttl = "172800"
     records = [

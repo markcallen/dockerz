@@ -1,6 +1,6 @@
 
 resource "aws_elb" "swarm-manager" {
-  name = "${var.vpc_key}-${var.z_region}-elb"
+  name = "${var.z_network}-${var.z_region}-elb"
 
   security_groups      = [
     "${aws_security_group.loadbalancer.id}"
@@ -49,8 +49,9 @@ resource "aws_elb" "swarm-manager" {
   connection_draining_timeout = 400
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-elb"
-    DDBINREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-elb"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
@@ -62,12 +63,24 @@ resource "aws_elb" "swarm-manager" {
 
 resource "aws_route53_record" "swarm-manager-elb" {
   zone_id = "${var.z_zone_id}"
-  name = "swarm-dockerz-a"
+  name = "swarm-${var.z_network}-${var.z_region}"
   type = "CNAME"
   ttl = "5"
   weighted_routing_policy {
     weight = 10
   }
-  set_identifier = "${var.vpc_key}-${var.z_region}"
+  set_identifier = "${var.z_network}-${var.z_region}"
+  records = ["${aws_elb.swarm-manager.dns_name}"]
+}
+
+resource "aws_route53_record" "wildcard-swarm-manager-elb" {
+  zone_id = "${var.z_zone_id}"
+  name = "*.swarm-${var.z_network}-${var.z_region}"
+  type = "CNAME"
+  ttl = "5"
+  weighted_routing_policy {
+    weight = 10
+  }
+  set_identifier = "${var.z_network}-${var.z_region}"
   records = ["${aws_elb.swarm-manager.dns_name}"]
 }

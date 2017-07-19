@@ -1,5 +1,5 @@
 resource "aws_security_group" "loadbalancer" {
-  name        = "${var.vpc_key}-${var.z_region}-sg-loadbalaner"
+  name        = "${var.z_network}-${var.z_region}-sg-loadbalaner"
   description = "Security group for loadbalaner"
   vpc_id      = "${aws_vpc.vpc.id}"
 
@@ -32,8 +32,9 @@ resource "aws_security_group" "loadbalancer" {
   }
 
   tags {
-    Name = "${var.vpc_key}-${var.z_region}-sg-loadbalancer"
-    DDBINREGION = "${var.z_region}"
+    Name = "${var.z_network}-${var.z_region}-sg-loadbalancer"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
     Terraform = "Terraform"
   }
