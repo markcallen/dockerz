@@ -51,7 +51,10 @@
         "apt-get install -y docker-ce",
         "groupadd docker",
         "usermod -aG docker ubuntu",
-        "systemctl enable docker"
+        "mkdir -p /etc/systemd/system/docker.service.d",
+        "mv /tmp/docker.options /etc/systemd/system/docker.service.d/override.conf",
+        "systemctl enable docker",
+        "apt-get install -y python"
       ],
       "type": "shell"
     }
