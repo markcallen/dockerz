@@ -30,7 +30,7 @@ resource "aws_instance" "swarm-manager" {
     provisioner "remote-exec" {
       inline = [
         "if [ ${count.index} -eq 0 ]; then sudo docker swarm init; else sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q manager); fi",
-        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=manager $HOSTNAME"
+        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=manager ${element(split(".", self.private_dns), 0)}"
       ]
     }
 }
@@ -90,7 +90,7 @@ resource "aws_instance" "swarm-app" {
     provisioner "remote-exec" {
       inline = [
         "sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q worker)",
-        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=app $HOSTNAME"
+        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=app ${element(split(".", self.private_dns), 0)}"
       ]
     }
 
@@ -140,7 +140,7 @@ resource "aws_instance" "swarm-storage" {
     provisioner "remote-exec" {
       inline = [
         "sudo docker swarm join ${aws_instance.swarm-manager.0.private_ip}:2377 --token $(docker -H ${aws_instance.swarm-manager.0.private_ip} swarm join-token -q worker)",
-        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=storage $HOSTNAME"
+        "docker -H ${aws_instance.swarm-manager.0.private_ip} node update --label-add nodetype=storage ${element(split(".", self.private_dns), 0)}"
       ]
     }
 
