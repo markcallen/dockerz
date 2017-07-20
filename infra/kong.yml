@@ -1,0 +1,21 @@
+---
+- hosts: managers 
+
+  tasks:
+  - name: Creates /swarm/volumes/kong-database
+    file:
+      path: /swarm/volumes/kong-database
+      state: directory
+      mode: 0775
+      recurse: yes
+    run_once: true
+
+  - name: Start kong database
+    command: "docker service create --name kong-database --publish 5432 --mount type=bind,src=/swarm/volumes/kong-database,dst=/var/lib/postgresql/data --network appnet --constraint 'node.labels.nodetype==storage' -e POSTGRES_USER=kong -e POSTGRES_DB=kong postgres:9.4"
+    run_once: true
+
+  - name: Start kong
+    command: "docker service create --name kong --publish 8000:8000 --publish 8443:8443 --publish 8001:8001 --constraint node.role==manager --network appnet -e KONG_DATABASE=postgres -e KONG_PG_HOST=kong-database kong:0.10"
+    run_once: true
+
+

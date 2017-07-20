@@ -1,0 +1,29 @@
+---
+- hosts: managers 
+
+  tasks:
+  - name: Creates /swarm/volumes/registry-database
+    file:
+      path: /swarm/volumes/registry-database
+      state: directory
+      mode: 0775
+      recurse: yes
+    run_once: true
+
+  - name: Start registry database
+    command: "docker service create --name registry-redis --publish 6379 --mount type=bind,src=/swarm/volumes/registry-database,dst=/data --network appnet --constraint 'node.labels.nodetype==storage' redis:3.2 redis-server --appendonly yes"
+    run_once: true
+
+  - name: Creates /swarm/volumes/registry
+    file:
+      path: /swarm/volumes/registry
+      state: directory
+      mode: 0775
+      recurse: yes
+    run_once: true
+
+  - name: Start registry
+    command: "docker service create --name registry --publish 5000 --mount type=bind,src=/swarm/volumes/registry,dst=/var/lib/docker/registry --network appnet --constraint 'node.labels.nodetype==storage' -e SETTINGS_FLAVOR=local -e STORAGE_PATH=/var/lib/docker/registry -e SEARCH_BACKEND=sqlalchemy -e CACHE_REDIS_HOST=registry-redis -e CACHE_REDIS_PORT=6379 -e CACHE_LRU_REDIS_HOST=registry-redis -e CACHE_LRU_REDIS_PORT=6379 registry:2"
+    run_once: true
+
+
