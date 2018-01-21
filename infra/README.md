@@ -66,17 +66,6 @@ curl -i -X GET \
   --url http://localhost:8000/ \
   --header 'Host: viz.swarm-dockerz-a.dockerz.ooo'
 
-## Debug Flocker
-
-From the manager node
-
-````
-sudo root
-curl -sSL https://get.flocker.io |sh
-
-IGNORE_NETWORK_CHECK=1 flockerctl --control-service=flocker-control.dockerz.a.dockerz.ooo --user=plugin --certs-path=/etc/flocker list-nodes
-IGNORE_NETWORK_CHECK=1 flockerctl --control-service=flocker-control.dockerz.a.dockerz.ooo --user=plugin --certs-path=/etc/flocker list
-````
 
 ## License & Authors
 - Author:: Mark Allen (mark@markcallen.com)
