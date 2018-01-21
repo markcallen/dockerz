@@ -16,13 +16,11 @@ if ! docker history -q byrnedo/alpine-curl >/dev/null 2>&1; then
  docker pull byrnedo/alpine-curl
 fi
 
-
-
 : ${AWS_ACCESS_KEY_ID:?"Need to set AWS_ACCESS_KEY_ID"}
 : ${AWS_SECRET_ACCESS_KEY:?"Need to set AWS_SECRET_ACCESS_KEY"}
 : ${AWS_DEFAULT_REGION:?"Need to set AWS_DEFAULT_REGION"}
 
-TERRAFORM="docker run --rm -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -v $PWD:/terraform -i -t hashicorp/terraform:light"
+TERRAFORM="docker run --rm -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION -v $PWD:/terraform -v $PWD/.terraform:/.terraform -i -t hashicorp/terraform:light"
 
 PUBLIC_IP=$(docker run --rm byrnedo/alpine-curl -Ls http://ipinfo.io/ip)
 
@@ -31,6 +29,8 @@ if [ -z $PUBLIC_IP ]; then
 else
   PUBLIC_IP="${PUBLIC_IP}/32"
 fi
+
+$TERRAFORM init -no-color /terraform
 
 $TERRAFORM apply \
 	-var public_ip=${PUBLIC_IP} \
