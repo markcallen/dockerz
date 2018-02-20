@@ -36,25 +36,33 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
-echo "[managers]" > inventory
-MANAGERS=$(terraform output swarm_managers)
-echo $MANAGERS ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+echo "[manager]" > inventory
+MANAGERS=$(terraform output swarm_managers | tr "," " ")
+for HOST in $MANAGERS; do
+    echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+done
 echo "" >> inventory
 echo "[storage]" >> inventory
-STORAGE=$(terraform output swarm_storage)
-echo $STORAGE ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+STORAGE=$(terraform output swarm_storage | tr "," " ")
+for HOST in $STORAGE; do
+    echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+done
 echo "" >> inventory
-echo "[app]" >> inventory
-APP=$(terraform output swarm_app)
-echo $APP ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+echo "[worker]" >> inventory
+APP=$(terraform output swarm_app | tr "," " ")
+for HOST in $APP; do
+    echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+done
 echo "" >> inventory
 echo "[storage_nodes]" >> inventory
-MANAGERS=$(terraform output swarm_managers_private)
-echo $MANAGERS ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
-STORAGE=$(terraform output swarm_storage_private)
-echo $STORAGE ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+MANAGERS=$(terraform output swarm_managers_private | tr "," " ")
+for HOST in $MANAGERS; do
+    echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+done
+STORAGE=$(terraform output swarm_storage_private | tr "," " ")
+for HOST in $STORAGE; do
+    echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
+done
 echo "" >> inventory
 
-cat inventory
-
-ansible-playbook -i inventory -b --private-key $AWS_SSH_KEY glusterfs.yml 
+ansible-playbook -i inventory -b --private-key $AWS_SSH_KEY dockerz.yml

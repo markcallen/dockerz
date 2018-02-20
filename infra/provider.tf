@@ -74,12 +74,11 @@ resource "aws_route_table_association" "b" {
   subnet_id = "${aws_subnet.b.id}"
 }
 
-/* TODO: need to get this dynamically based upon the region
+/* TODO: need to get this dynamically based upon the region */
 resource "aws_route_table_association" "d" {
   route_table_id = "${aws_route_table.main.id}"
   subnet_id = "${aws_subnet.d.id}"
 }
-*/
 
 resource "aws_subnet" "a" {
   vpc_id = "${aws_vpc.vpc.id}"
@@ -111,7 +110,6 @@ resource "aws_subnet" "b" {
   }
 }
 
-/*
 resource "aws_subnet" "d" {
   vpc_id = "${aws_vpc.vpc.id}"
   cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block,8,3)}"
@@ -125,7 +123,6 @@ resource "aws_subnet" "d" {
     Terraform = "Terraform"
   }
 }
-*/
 
 resource "aws_vpc" "vpc" {
   cidr_block           = "${var.vpc_cidr_block}"
@@ -142,23 +139,3 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-/* TODO: this is here for future reference if the mgmt network every comes on line
-resource "aws_vpc_peering_connection" "app-mgmt" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  peer_vpc_id = "${var.mgmt_vpc_id}"
-  auto_accept = true
-}
-
-resource "aws_route" "app2mgmt" {
-  route_table_id = "${aws_route_table.main.id}"
-  destination_cidr_block = "10.10.0.0/16"
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.app-mgmt.id}"
-}
-
-resource "aws_route" "mgmt2app" {
-  route_table_id = "rtb-2234d75b"
-  destination_cidr_block = "10.20.0.0/16"
-  vpc_peering_connection_id = "${aws_vpc_peering_connection.app-mgmt.id}"
-}
-
-*/

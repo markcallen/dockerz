@@ -43,8 +43,8 @@ variable "cluster_storage_count" {
     default = 3
 }
 
-variable "cluster_node_count" {
-    description = "Number of node instances for the swarm cluster."
+variable "cluster_app_count" {
+    description = "Number of app instances for the swarm cluster."
     default = 1
 }
 

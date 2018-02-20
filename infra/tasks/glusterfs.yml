@@ -1,5 +1,5 @@
 ---
-- hosts: managers storage
+- hosts: manager storage
 
   tasks:
   - name: install glusterfs

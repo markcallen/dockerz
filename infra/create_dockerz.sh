@@ -97,7 +97,7 @@ else
   "us-east-1")
     VPC_CIDR_BLOCK=10.10.0.0/16
     ;;
-  "us-east-1")
+  "us-east-2")
     VPC_CIDR_BLOCK=10.20.0.0/16
     ;;
   "us-west-1")
@@ -109,11 +109,16 @@ else
   "ca-central-1")
     VPC_CIDR_BLOCK=10.50.0.0/16
     ;;
+  "sa-east-1")
+    VPC_CIDR_BLOCK=10.60.0.0/16
+    ;;
   *)
     echo "${AWS_DEFAULT_REGION} unknown region"
     exit 1;
     ;;
   esac
+
+  terraform init -no-color
 
   terraform $ACTION -var aws_region=${AWS_DEFAULT_REGION} \
              -var vpc_cidr_block=${VPC_CIDR_BLOCK} \
@@ -125,9 +130,9 @@ else
              -var z_domain=${Z_DOMAIN} \
              -var z_zone_id=${Z_ZONE_ID} \
              -var vpc_key=${Z_NETWORK}-${Z_REGION} \
-	     -var cluster_manager_count=1 \
-	     -var cluster_storage_count=1 \
-	     -var cluster_node_count=1 \
+	     -var cluster_manager_count=3 \
+             -var cluster_storage_count=1 \
+	     -var cluster_app_count=2 \
    	     -var certificate=${CERTIFICATE_ARN} 
 
 fi

@@ -1,5 +1,5 @@
 ---
-- hosts: managers 
+- hosts: manager
 
   tasks:
   - name: Creates /swarm/volumes/registry-database

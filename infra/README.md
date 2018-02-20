@@ -29,6 +29,12 @@ export AWS_SSH_KEY_ID=<key pair name>
 export AWS_SSH_KEY=`dirname $PWD/$BASH_SOURCE`/<key.pem>
 ````
 
+network: -n
+region: -r
+domain: -d
+
+To create a swarm located at: swarm-dockerz-b.dockerz.ooo
+
 ````
 ./create_dockerz.sh -r b -n dockerz -d dockerz.ooo createcert
 ````
@@ -37,34 +43,30 @@ check email at webmaster@dockerz.ooo
 
 ### Create Swarm
 
+To create machines in: dockerz.b.dockerz.ooo
+
 ````
 ./create_dockerz.sh -r b -n dockerz -d dockerz.ooo apply
 ````
 
 ### Provision Swarm
 
+Setup GlusterFS, Kong and Private Registry
+
 ````
 ./provision.sh
 ````
 
 
-## Setup Kong
-
-docker service create --name kong-database --publish 5432:5432 --mount type=volume,src=kongdb,dst=/var/lib/postgresql/data,volume-driver=flocker,volume-opt=size=50gb --constraint node.role==manager --network appnet -e POSTGRES_USER=kong -e POSTGRES_DB=kong postgres:9.4
-
-docker service create --name kong  --publish 8000:8000  --publish 8443:8443  --publish 8001:8001 \
---constraint node.role==manager --network appnet \
--e KONG_DATABASE=postgres -e KONG_PG_HOST=kong-database kong:0.10
-
-## Setup viz
+## Configure viz
 
 docker service create --name viz --publish 8080 --constraint node.role==manager --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --network appnet dockersamples/visualizer
 
-curl -i -X POST --data 'name=viz' --data 'upstream_url=http://viz:8080/' --data 'hosts=viz.swarm-dockerz-a.dockerz.ooo' http://localhost:8001/apis/
+curl -i -X POST --data 'name=viz' --data 'upstream_url=http://viz:8080/' --data 'hosts=viz.swarm-dockerz-b.dockerz.ooo' http://localhost:8001/apis/
 
 curl -i -X GET \
   --url http://localhost:8000/ \
-  --header 'Host: viz.swarm-dockerz-a.dockerz.ooo'
+  --header 'Host: viz.swarm-dockerz-b.dockerz.ooo'
 
 
 ## License & Authors
