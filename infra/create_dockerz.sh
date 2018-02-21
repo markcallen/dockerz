@@ -1,9 +1,8 @@
 #!/bin/bash
 #
-# Create DockerZ
-# https://github.com/markcallen/dockerz
+# Create dockerz environment
 #
-# version: 0.1.0
+# https://github.com/markcallen/dockerz
 #
 # License & Authors
 #

@@ -1,9 +1,8 @@
 #!/bin/bash
 #
-# Provision DockerZ
-# https://github.com/markcallen/dockerz
+# Provision dockerz environment
 #
-# version: 0.1.0
+# https://github.com/markcallen/dockerz
 #
 # License & Authors
 #
