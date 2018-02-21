@@ -130,3 +130,8 @@
       shell: >
         docker node update --label-add nodetype=storage $(docker node inspect self --format \{\{.ID\}\})
 
+- hosts: swarm_manager_operational[0]
+  tasks:
+    - name: create appnet network
+      shell: >
+        docker network create -d overlay appnet
