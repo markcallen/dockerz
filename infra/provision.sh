@@ -65,4 +65,10 @@ for HOST in $STORAGE; do
 done
 echo "" >> inventory
 
-ansible-playbook -i inventory -b --private-key $AWS_SSH_KEY dockerz.yml
+for task in "$@"
+do
+    if [ -f tasks/$task ]; then
+      echo "Running tasks/$task ..."
+      ansible-playbook -i inventory -b --private-key $AWS_SSH_KEY tasks/$task
+    fi
+done
