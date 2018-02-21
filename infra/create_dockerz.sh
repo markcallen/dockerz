@@ -40,7 +40,7 @@ done
 
 ACTION=${@: -1}
 
-if [ "$ACTION" != "plan" ] && [ "$ACTION" != "apply" ] && [ "$ACTION" != "destroy" ] && [ "$ACTION" != "createcert" ]; then
+if [ "$ACTION" != "show" ] && [ "$ACTION" != "plan" ] && [ "$ACTION" != "apply" ] && [ "$ACTION" != "destroy" ] && [ "$ACTION" != "createcert" ]; then
     echo "Need an arguement of plan, apply, destory or createcert"
     exit 1
 fi
@@ -63,10 +63,17 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
+STATE=${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}.tfstate
+
+
 if [ "$ACTION" == "createcert" ]; then
   echo "Creating certificate request for swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} and *-swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}"
   aws acm request-certificate --domain-name swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} --subject-alternative-names *.swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} --domain-validation-options DomainName=swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN},ValidationDomain=${Z_DOMAIN}
   echo "Check verification email for webmaster@${Z_DOMAIN}"
+
+elif [ "$ACTION" == "show" ]; then
+  terraform show ${STATE}
+
 else
   CERTIFICATE_ARN=$(aws acm list-certificates --certificate-statuses ISSUED --query 'CertificateSummaryList[*].[DomainName, CertificateArn]' --output text | grep swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} | cut -f2)
 
@@ -125,7 +132,8 @@ else
 
   terraform init -no-color
 
-  terraform $ACTION -var aws_region=${AWS_DEFAULT_REGION} \
+  terraform $ACTION -state=${STATE} \
+             -var aws_region=${AWS_DEFAULT_REGION} \
              -var vpc_cidr_block=${VPC_CIDR_BLOCK} \
              -var 'amis={ '${AWS_DEFAULT_REGION}' = "'${AMI}'" }' \
              -var ssh_key_name=${AWS_SSH_KEY_ID} \
