@@ -1,5 +1,3 @@
 ---
   - include: tasks/swarm.yml
   - include: tasks/glusterfs.yml
-#  - include: tasks/kong.yml
-#  - include: tasks/registry.yml
