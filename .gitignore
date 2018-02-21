@@ -1,6 +1,6 @@
 .DS_Store
-terraform.tfstate.backup
-terraform.tfstate
+*.tfstate.backup
+*.tfstate
 .terraform/
 infra/dockerz.retry
 infra/inventory
