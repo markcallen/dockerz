@@ -1,16 +1,22 @@
-# DockerZ
+# DockerZ - Packer
 
-Creates a docker swarm and provisions management tools
+## Requires
 
-## Packer
+IAM user with
+ - AmazonEC2FullAccess
+ - AmazonRoute53DomainsFullAccess
+ - AmazonVPCFullAccess
+ - AmazonRoute53FullAccess
+ - AWSCertificateManagerFullAccess
 
-Creates a packer images for AWS
-
-## Infra
-
-Builds the infrastructure for the docker swarm
+Create a key and secret and a key pair.
 
 
+## Run
+
+````
+./create-docker-ami.sh
+````
 
 ## License & Authors
 - Author:: Mark Allen (mark@markcallen.com)
