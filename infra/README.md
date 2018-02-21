@@ -51,10 +51,10 @@ To create machines in: dockerz.b.dockerz.ooo
 
 ### Provision Swarm
 
-Setup GlusterFS, Kong and Private Registry
+Setup GlusterFS and create the swarm
 
 ````
-./provision.sh
+./provision.sh swarm.yml glusterfs.yml
 ````
 
 
