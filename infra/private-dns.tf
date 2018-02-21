@@ -1,7 +1,7 @@
 
 resource "aws_route53_zone" "zdomain-vpc" {
   name = "${var.z_network}.${var.z_region}.${var.z_domain}"
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.infra.id}"
   tags {
     Environment = "${var.z_network}.${var.z_region}"
   }

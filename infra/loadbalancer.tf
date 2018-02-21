@@ -6,10 +6,8 @@ resource "aws_elb" "swarm-manager" {
     "${aws_security_group.loadbalancer.id}"
   ]
 
-  subnets = [
-    "${aws_subnet.a.id}",
-    "${aws_subnet.b.id}"
-  ]
+  subnets = [ "${aws_subnet.infra.*.id}" ]
+
 
 /*
   access_logs {

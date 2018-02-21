@@ -1,5 +1,5 @@
 ---
-- hosts: manager
+- hosts: manager[0]
 
   tasks:
   - name: Creates /swarm/volumes/kong-database

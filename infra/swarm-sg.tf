@@ -1,7 +1,7 @@
 resource "aws_security_group" "swarm" {
   name        = "${var.z_network}-${var.z_region}-sg-swarm"
   description = "Security group for swarm cluster instances"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.infra.id}"
 
   ingress {
       from_port   = 2375

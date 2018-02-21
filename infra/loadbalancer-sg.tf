@@ -1,7 +1,7 @@
 resource "aws_security_group" "loadbalancer" {
   name        = "${var.z_network}-${var.z_region}-sg-loadbalaner"
   description = "Security group for loadbalaner"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.infra.id}"
 
 
   ingress {

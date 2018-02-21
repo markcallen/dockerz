@@ -4,7 +4,7 @@ resource "aws_instance" "swarm-manager" {
     count = "${var.cluster_manager_count}"
     associate_public_ip_address = "true"
     key_name = "${var.ssh_key_name}"
-    subnet_id = "${aws_subnet.a.id}"
+    subnet_id = "${element(aws_subnet.infra.*.id, count.index % length(data.aws_availability_zones.available.names))}" 
     vpc_security_group_ids      = [
       "${aws_security_group.swarm.id}"
     ]
@@ -31,7 +31,7 @@ resource "aws_instance" "swarm-manager" {
 
 resource "aws_ebs_volume" "storage-manager" {
   count = "${var.cluster_manager_count}"
-  availability_zone = "${var.aws_region}a"
+  availability_zone = "${element(data.aws_availability_zones.available.names, count.index % length(data.aws_availability_zones.available.names))}"
   type = "gp2"
   size = "50"
 }
@@ -58,7 +58,7 @@ resource "aws_instance" "swarm-app" {
     count = "${var.cluster_app_count}"
     associate_public_ip_address = "true"
     key_name = "${var.ssh_key_name}"
-    subnet_id = "${aws_subnet.a.id}"
+    subnet_id = "${element(aws_subnet.infra.*.id, count.index % length(data.aws_availability_zones.available.names))}" 
     vpc_security_group_ids = [
       "${aws_security_group.swarm.id}"
     ]
@@ -101,7 +101,7 @@ resource "aws_instance" "swarm-storage" {
     count = "${var.cluster_storage_count}"
     associate_public_ip_address = "true"
     key_name = "${var.ssh_key_name}"
-    subnet_id = "${aws_subnet.a.id}"
+    subnet_id = "${element(aws_subnet.infra.*.id, count.index % length(data.aws_availability_zones.available.names))}" 
     vpc_security_group_ids = [
       "${aws_security_group.swarm.id}"
     ]
@@ -131,7 +131,7 @@ resource "aws_instance" "swarm-storage" {
 
 resource "aws_ebs_volume" "swarm-storage" {
   count = "${var.cluster_storage_count}"
-  availability_zone = "${var.aws_region}a"
+  availability_zone = "${element(data.aws_availability_zones.available.names, count.index % length(data.aws_availability_zones.available.names))}"
   type = "gp2"
   size = "50"
 }

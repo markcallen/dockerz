@@ -75,15 +75,20 @@ else
     exit 1;
   fi
 
+  AMI=$(aws ec2 describe-images --owners self --filters "Name=name,Values=dockerz*" --query 'Images[*].[ImageId,Name,CreationDate]' --output text | sort -k 3 -r | head -1 | awk '{print $1'})
+
+  if [ -z ${AMI} ]; then
+    echo "No AMIs found.  Go to the packer directory and create one"
+    exit 1;
+  fi
+
   KEY_PAIR_EXISTS=$(aws ec2 describe-key-pairs --filters Name=key-name,Values=${AWS_SSH_KEY_ID} --query KeyPairs[*].KeyName  --output text)
 
-  if [ $KEY_PAIR_EXISTS == "" ]; then
+  if [ -z ${KEY_PAIR_EXISTS} ]; then
+    echo "Creating key $AWS_SSH_KEY_ID using $AWS_SSH_KEY"
     KEY=$(ssh-keygen -y -f ${AWS_SSH_KEY})
     aws ec2 import-key-pair --key-name $AWS_SSH_KEY_ID --public-key-material "$KEY"
   fi
-
-  AMI=$(aws ec2 describe-images --owners self --filters "Name=name,Values=dockerz*" --query 'Images[*].[ImageId,Name,CreationDate]' --output text | sort -k 3 -r | head -1 | awk '{print $1'})
-
 
   Z_ZONE_QUERY='HostedZones[?ends_with(`'"$Z_DOMAIN."'`,Name)].Id'
   Z_ZONE_ID=$(aws route53 list-hosted-zones --query $Z_ZONE_QUERY --output text)
