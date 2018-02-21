@@ -2,7 +2,7 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-resource "aws_vpc" "vpc" {
+resource "aws_vpc" "infra" {
   cidr_block           = "${var.vpc_cidr_block}"
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -18,7 +18,7 @@ resource "aws_vpc" "vpc" {
 }
 
 resource "aws_internet_gateway" "main" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.infra.id}"
 
   tags {
     Name = "${var.z_network}-${var.z_region}-ig"
@@ -28,12 +28,9 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
-resource "aws_network_acl" "network" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  subnet_ids = [
-    "${aws_subnet.a.id}",
-    "${aws_subnet.b.id}"
-  ]
+resource "aws_network_acl" "infra" {
+  vpc_id = "${aws_vpc.infra.id}"
+  subnet_ids = [ "${aws_subnet.infra.*.id}" ]
 
   ingress {
     from_port = 0
@@ -63,7 +60,7 @@ resource "aws_network_acl" "network" {
 }
 
 resource "aws_route_table" "main" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = "${aws_vpc.infra.id}"
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -79,30 +76,18 @@ resource "aws_route_table" "main" {
   }
 }
 
-resource "aws_route_table_association" "a" {
-  route_table_id = "${aws_route_table.main.id}"
-  subnet_id = "${aws_subnet.a.id}"
-}
 
-resource "aws_route_table_association" "b" {
-  route_table_id = "${aws_route_table.main.id}"
-  subnet_id = "${aws_subnet.b.id}"
-}
+data "aws_availability_zones" "available" {}
 
-/* TODO: need to get this dynamically based upon the region */
-resource "aws_route_table_association" "d" {
-  route_table_id = "${aws_route_table.main.id}"
-  subnet_id = "${aws_subnet.d.id}"
-}
-
-resource "aws_subnet" "a" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block,8,1)}"
-  availability_zone = "${var.aws_region}a"
+resource "aws_subnet" "infra" {
+  vpc_id = "${aws_vpc.infra.id}"
+  count = "${length(data.aws_availability_zones.available.names)}"
+  cidr_block = "${cidrsubnet(aws_vpc.infra.cidr_block,8,count.index)}"
+  availability_zone = "${element(data.aws_availability_zones.available.names, count.index)}"
   map_public_ip_on_launch = false
 
   tags {
-    Name = "${var.z_network}-${var.z_region}-a"
+    Name = "${var.z_network}-${var.z_region}-${element(data.aws_availability_zones.available.names, count.index)}"
     Z_REGION = "${var.z_region}"
     Z_NETWORK = "${var.z_network}"
     VPC = "${var.vpc_key}"
@@ -110,33 +95,9 @@ resource "aws_subnet" "a" {
   }
 }
 
-resource "aws_subnet" "b" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block,8,2)}"
-  availability_zone = "${var.aws_region}b"
-  map_public_ip_on_launch = false
-
-  tags {
-    Name = "${var.z_network}-${var.z_region}-b"
-    Z_REGION = "${var.z_region}"
-    Z_NETWORK = "${var.z_network}"
-    VPC = "${var.vpc_key}"
-    Terraform = "Terraform"
-  }
+resource "aws_route_table_association" "infra" {
+  route_table_id = "${aws_route_table.main.id}"
+  count = "${length(data.aws_availability_zones.available.names)}" # Using data.aws_availability_zones.available.names as aws_subnet.infra.*.id does not work
+  subnet_id = "${element(aws_subnet.infra.*.id, count.index)}"
 }
-
-resource "aws_subnet" "d" {
-  vpc_id = "${aws_vpc.vpc.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.vpc.cidr_block,8,3)}"
-  availability_zone = "${var.aws_region}d"
-  map_public_ip_on_launch = false
-
-  tags {
-    Name = "${var.z_network}-${var.z_region}-d"
-    Z_REGION = "${var.z_network}"
-    VPC = "${var.vpc_key}"
-    Terraform = "Terraform"
-  }
-}
-
 
