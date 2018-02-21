@@ -36,7 +36,7 @@ domain: -d
 To create a swarm located at: swarm-dockerz-b.dockerz.ooo
 
 ````
-./create_dockerz.sh -r b -n dockerz -d dockerz.ooo createcert
+./create-dockerz.sh -r b -n dockerz -d dockerz.ooo createcert
 ````
 
 check email at webmaster@dockerz.ooo
@@ -46,7 +46,7 @@ check email at webmaster@dockerz.ooo
 To create machines in: dockerz.b.dockerz.ooo
 
 ````
-./create_dockerz.sh -r b -n dockerz -d dockerz.ooo apply
+./create-dockerz.sh -r b -n dockerz -d dockerz.ooo apply
 ````
 
 ### Provision Swarm
@@ -54,7 +54,7 @@ To create machines in: dockerz.b.dockerz.ooo
 Setup GlusterFS and create the swarm
 
 ````
-./provision.sh -r b -n dockerz -d dockerz.ooo swarm.yml glusterfs.yml
+./provision-dockerz.sh -r b -n dockerz -d dockerz.ooo swarm.yml glusterfs.yml
 ````
 
 
@@ -62,11 +62,19 @@ Setup GlusterFS and create the swarm
 
 docker service create --name viz --publish 8080 --constraint node.role==manager --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --network appnet dockersamples/visualizer
 
+````
 curl -i -X POST --data 'name=viz' --data 'upstream_url=http://viz:8080/' --data 'hosts=viz.swarm-dockerz-b.dockerz.ooo' http://localhost:8001/apis/
 
 curl -i -X GET \
   --url http://localhost:8000/ \
   --header 'Host: viz.swarm-dockerz-b.dockerz.ooo'
+````
+
+Test
+
+````
+open https://viz.swarm-dockerz-b.dockerz.ooo
+````
 
 
 ## License & Authors
