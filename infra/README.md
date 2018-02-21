@@ -54,7 +54,7 @@ To create machines in: dockerz.b.dockerz.ooo
 Setup GlusterFS and create the swarm
 
 ````
-./provision.sh swarm.yml glusterfs.yml
+./provision.sh -r b -n dockerz -d dockerz.ooo swarm.yml glusterfs.yml
 ````
 
 

@@ -36,30 +36,46 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
+while getopts r:n:d: option
+do
+  case "${option}"
+  in
+    r) Z_REGION=${OPTARG};;
+    n) Z_NETWORK=${OPTARG};;
+    d) Z_DOMAIN=${OPTARG};;
+  esac
+done
+
+: ${Z_REGION:?"Need a region"}
+: ${Z_NETWORK:?"Need a network"}
+: ${Z_DOMAIN:?"Need a domain"}
+
+STATE=${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}.tfstate
+
 echo "[manager]" > inventory
-MANAGERS=$(terraform output swarm_managers | tr "," " ")
+MANAGERS=$(terraform output -state=${STATE} swarm_managers | tr "," " ")
 for HOST in $MANAGERS; do
     echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
 done
 echo "" >> inventory
 echo "[storage]" >> inventory
-STORAGE=$(terraform output swarm_storage | tr "," " ")
+STORAGE=$(terraform output -state=${STATE} swarm_storage | tr "," " ")
 for HOST in $STORAGE; do
     echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
 done
 echo "" >> inventory
 echo "[worker]" >> inventory
-APP=$(terraform output swarm_app | tr "," " ")
+APP=$(terraform output -state=${STATE} swarm_app | tr "," " ")
 for HOST in $APP; do
     echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
 done
 echo "" >> inventory
 echo "[storage_nodes]" >> inventory
-MANAGERS=$(terraform output swarm_managers_private | tr "," " ")
+MANAGERS=$(terraform output -state=${STATE} swarm_managers_private | tr "," " ")
 for HOST in $MANAGERS; do
     echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
 done
-STORAGE=$(terraform output swarm_storage_private | tr "," " ")
+STORAGE=$(terraform output -state=${STATE} swarm_storage_private | tr "," " ")
 for HOST in $STORAGE; do
     echo $HOST ansible_connection=ssh ansible_ssh_user=ubuntu >> inventory
 done
