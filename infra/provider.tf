@@ -2,6 +2,21 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
+resource "aws_vpc" "vpc" {
+  cidr_block           = "${var.vpc_cidr_block}"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  instance_tenancy     = "default"
+
+  tags {
+    Name = "${var.z_network}-${var.z_region}-vpc"
+    VPC = "${var.vpc_key}"
+    Z_REGION = "${var.z_region}"
+    Z_NETWORK = "${var.z_network}"
+    Terraform = "Terraform"
+  }
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.vpc.id}"
 
@@ -124,18 +139,4 @@ resource "aws_subnet" "d" {
   }
 }
 
-resource "aws_vpc" "vpc" {
-  cidr_block           = "${var.vpc_cidr_block}"
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-  instance_tenancy     = "default"
-
-  tags {
-    Name = "${var.z_network}-${var.z_region}-vpc"
-    VPC = "${var.vpc_key}"
-    Z_REGION = "${var.z_region}"
-    Z_NETWORK = "${var.z_network}"
-    Terraform = "Terraform"
-  }
-}
 
