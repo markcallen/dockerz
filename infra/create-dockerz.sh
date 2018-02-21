@@ -62,8 +62,14 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
-STATE=${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}.tfstate
+ROUTE53_ZONE=$(aws route53 list-hosted-zones --output text | grep ${Z_DOMAIN} | cut -f4)
 
+if [ "${ROUTE53_ZONE}" != "${Z_DOMAIN}." ]; then
+  echo "Can't find hosted zone for ${Z_DOMAIN}"
+  exit 1;
+fi
+
+STATE=${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}.tfstate
 
 if [ "$ACTION" == "createcert" ]; then
   echo "Creating certificate request for swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN} and *-swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}"
@@ -131,7 +137,7 @@ else
 
   terraform init -no-color
 
-  terraform $ACTION -state=${STATE} \
+  terraform $ACTION -auto-approve -state=${STATE} \
              -var aws_region=${AWS_DEFAULT_REGION} \
              -var vpc_cidr_block=${VPC_CIDR_BLOCK} \
              -var 'amis={ '${AWS_DEFAULT_REGION}' = "'${AMI}'" }' \
