@@ -80,10 +80,12 @@ for HOST in $STORAGE; do
 done
 echo "" >> inventory
 
+DOMAINNAME=swarm-${Z_NETWORK}-${Z_REGION}.${Z_DOMAIN}
+
 for task in "$@"
 do
     if [ -f tasks/$task ]; then
       echo "Running tasks/$task ..."
-      ansible-playbook -i inventory -b --private-key $AWS_SSH_KEY tasks/$task
+      ansible-playbook -vv -i inventory -b --private-key $AWS_SSH_KEY -e domainname=$DOMAINNAME tasks/$task
     fi
 done

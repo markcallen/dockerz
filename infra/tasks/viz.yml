@@ -1,0 +1,27 @@
+---
+- hosts: manager[0]
+
+  vars: 
+    - kong_admin_base_url: "http://localhost:8001"
+    - kong_base_url: "http://localhost:8000"
+
+  tasks:
+    - shell: docker service ps viz || echo false
+      register: viz_running
+
+    - name: Start viz
+      command: "docker service create --name viz --publish 8080 --constraint node.role==manager --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --network appnet dockersamples/visualizer"
+      when: viz_running.stdout.find('false') != -1
+
+    - name: Register APIs
+      kong_api:
+        kong_admin_uri: "{{kong_admin_base_url}}"
+        name: "viz"
+        upstream_url: "http://viz:8080"
+        request_host: "viz.{{ domainname }}"
+        state: present
+
+    - name: Verify API was added
+      uri: 
+        url: "{{kong_admin_base_url}}/apis/viz"
+        status_code: 200

@@ -2,9 +2,11 @@
 
 ## Infra
 
-### ansible
+### terraform
 
-- prevent kong, registry from being created if they already exist
+- add hostname and domain to replace private ip as hostname
+
+### ansible
 
 - add glusterfs plugin https://github.com/sapk/docker-volume-gluster
 

@@ -1,5 +1,9 @@
 ---
-- hosts: manager
+- hosts: manager[0]
+
+  vars: 
+    - kong_admin_base_url: "http://localhost:8001"
+    - kong_base_url: "http://localhost:8000"
 
   tasks:
   - name: Creates /swarm/volumes/registry-database
@@ -10,9 +14,15 @@
       recurse: yes
     run_once: true
 
+  - shell: docker service ps registry-redis || echo false
+    register: redis_running
+
   - name: Start registry database
     command: "docker service create --name registry-redis --publish 6379 --mount type=bind,src=/swarm/volumes/registry-database,dst=/data --network appnet --constraint 'node.labels.nodetype==storage' redis:3.2 redis-server --appendonly yes"
-    run_once: true
+    when: redis_running.stdout.find('false') != -1
+    
+  - shell: docker service ps registry || echo false
+    register: registry_running
 
   - name: Creates /swarm/volumes/registry
     file:
@@ -24,6 +34,30 @@
 
   - name: Start registry
     command: "docker service create --name registry --publish 5000 --mount type=bind,src=/swarm/volumes/registry,dst=/var/lib/docker/registry --network appnet --constraint 'node.labels.nodetype==storage' -e SETTINGS_FLAVOR=local -e STORAGE_PATH=/var/lib/docker/registry -e SEARCH_BACKEND=sqlalchemy -e CACHE_REDIS_HOST=registry-redis -e CACHE_REDIS_PORT=6379 -e CACHE_LRU_REDIS_HOST=registry-redis -e CACHE_LRU_REDIS_PORT=6379 registry:2"
-    run_once: true
+    when: registry_running.stdout.find('false') != -1
 
+  - name: Register APIs
+    kong_api:
+      kong_admin_uri: "{{kong_admin_base_url}}"
+      name: "registry"
+      upstream_url: "http://registry:5000"
+      request_host: "registry.{{ domainname }}"
+      state: present
+
+  - name: Add request-transformer
+    kong_plugin:
+      kong_admin_uri: "{{kong_admin_base_url}}"
+      api_name: "registry"
+      plugin_name: "request-transformer"        
+      config: 
+         config.append.headers[1]: X-Real-IP:\$remote_addr 
+         config.append.headers[2]: Host:registry.{{ domainname }}  
+         config.append.headers[3]: X-Forwarded-For:\$proxy_add_x_forwarded_for
+         config.append.headers[4]: X-Forwarded-Proto:\$scheme}
+      state: present
+
+  - name: Verify API was added
+    uri: 
+      url: "{{kong_admin_base_url}}/apis/registry"
+      status_code: 200
 

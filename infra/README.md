@@ -66,20 +66,33 @@ Setup GlusterFS and create the swarm
 
 ## Configure viz
 
-docker service create --name viz --publish 8080 --constraint node.role==manager --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock --network appnet dockersamples/visualizer
-
 ````
-curl -i -X POST --data 'name=viz' --data 'upstream_url=http://viz:8080/' --data 'hosts=viz.swarm-dockerz-b.dockerz.ooo' http://localhost:8001/apis/
-
-curl -i -X GET \
-  --url http://localhost:8000/ \
-  --header 'Host: viz.swarm-dockerz-b.dockerz.ooo'
+./provision-dockerz.sh -r b -n dockerz -d dockerz.ooo viz.yml
 ````
 
 Test
 
 ````
 open https://viz.swarm-dockerz-b.dockerz.ooo
+````
+
+### Configure registry
+
+````
+./provision-dockerz.sh -r b -n dockerz -d dockerz.ooo registry.yml
+````
+
+Test
+
+````
+docker build . -t demo
+docker tag demo:latest registry.swarm-dockerz-b.dockerz.ooo/dockerz/demo:latest
+````
+
+log into a manager
+
+````
+docker service create demo registry.swarm-dockerz-b.dockerz.ooo/dockerz/demo:latest
 ````
 
 ## Adding users
