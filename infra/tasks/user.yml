@@ -1,0 +1,21 @@
+---
+- hosts: manager storage worker
+
+  tasks:
+  
+  - user: name={{ username }} 
+          comment="User {{ username }}" 
+          group=users
+          groups="docker, sudo"
+          shell=/bin/bash
+
+  - name: Placing key
+    authorized_key: user={{ username }} 
+                    key="{{ key }}"
+
+
+  - name: Add user to the sudoers
+    action: 'lineinfile dest=/etc/sudoers.d/{{ username }} state=present create=yes regexp="{{ username }} .*" line="{{ username }} ALL=(ALL) NOPASSWD: ALL"'
+
+  - name: Ensure sudoers.d file has correct permissions
+    action: file path=/etc/sudoers.d/{{ username }} mode=0440 state=file owner=root group=root

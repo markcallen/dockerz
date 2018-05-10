@@ -57,6 +57,12 @@ Setup GlusterFS and create the swarm
 ./provision-dockerz.sh -r b -n dockerz -d dockerz.ooo swarm.yml glusterfs.yml
 ````
 
+### Setup Kong
+
+````
+./provision-dockerz.sh -r b -n dockerz -d dockerz.ooo kong.yml
+````
+
 
 ## Configure viz
 
@@ -75,6 +81,23 @@ Test
 ````
 open https://viz.swarm-dockerz-b.dockerz.ooo
 ````
+
+## Adding users
+
+If using an existing keyname get the users public key form the keyname pem file
+
+````
+ssh-keygen -y -f <path to pem file>
+````
+
+otherwise just use the users public key
+
+Create the user
+
+````
+./create-users.sh -n dockerz -r b -d dockerz.ooo -u marka -k "<public key>"
+````
+
 
 
 ## License & Authors
