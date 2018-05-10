@@ -62,9 +62,10 @@ fi
 : ${AWS_SSH_KEY_ID:?"Need to set AWS_SSH_KEY_ID"}
 : ${AWS_SSH_KEY:?"Need to set AWS_SSH_KEY"}
 
-ROUTE53_ZONE=$(aws route53 list-hosted-zones --output text | grep ${Z_DOMAIN} | cut -f4)
+Z_ZONE_QUERY='HostedZones[?ends_with(`'"$Z_DOMAIN."'`,Name)].Id'
+Z_ZONE_ID=$(aws route53 list-hosted-zones --query $Z_ZONE_QUERY --output text)
 
-if [ "${ROUTE53_ZONE}" != "${Z_DOMAIN}." ]; then
+if [ -z ${Z_ZONE_ID} ]; then
   echo "Can't find hosted zone for ${Z_DOMAIN}"
   exit 1;
 fi
@@ -100,14 +101,6 @@ else
     echo "Creating key $AWS_SSH_KEY_ID using $AWS_SSH_KEY"
     KEY=$(ssh-keygen -y -f ${AWS_SSH_KEY})
     aws ec2 import-key-pair --key-name $AWS_SSH_KEY_ID --public-key-material "$KEY"
-  fi
-
-  Z_ZONE_QUERY='HostedZones[?ends_with(`'"$Z_DOMAIN."'`,Name)].Id'
-  Z_ZONE_ID=$(aws route53 list-hosted-zones --query $Z_ZONE_QUERY --output text)
-
-  if [ -z ${Z_ZONE_ID} ]; then
-    echo "Need to have domain ${Z_DOMAIN} configured in Route53"
-    exit 1;
   fi
 
   case ${AWS_DEFAULT_REGION} in
