@@ -111,6 +111,13 @@ Create the user
 ./create-users.sh -n dockerz -r b -d dockerz.ooo -u marka -k "<public key>"
 ````
 
+Make sure that you turn on forwarding in your local .ssh/config
+
+````
+Host *.amazonaws.com
+  ForwardAgent yes
+````
+
 
 
 ## License & Authors
