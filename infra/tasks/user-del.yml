@@ -1,0 +1,14 @@
+---
+- hosts: manager storage worker
+
+  tasks:
+  
+  - user: name={{ username }} 
+          state=absent
+          remove=yes
+
+  - name: Remove user to the sudoers
+    file: 
+      path: /etc/sudoers.d/{{ username }}
+      state: absent
+
