@@ -95,7 +95,19 @@ log into a manager
 docker service create demo registry.swarm-dockerz-b.dockerz.ooo/dockerz/demo:latest
 ````
 
-## Adding users
+add to kong
+
+````
+curl -i -X POST --data 'name=demo' --data 'upstream_url=http://demo:5000/' --data 'hosts=demo.swarm-dockerz-b.dockerz.ooo' http://localhost:8001/apis/
+````
+
+test
+
+````
+curl -i -X GET  --url http://localhost:8000/ --header 'Host: demo.swarm-dockerz-b.dockerz.ooo'
+````
+
+## Users
 
 If using an existing keyname get the users public key form the keyname pem file
 
@@ -118,7 +130,11 @@ Host *.amazonaws.com
   ForwardAgent yes
 ````
 
+deleting users
 
+````
+./user-del.sh -n dockerz -r b -d dockerz.ooo -u marka
+````
 
 ## License & Authors
 - Author:: Mark Allen (mark@markcallen.com)
