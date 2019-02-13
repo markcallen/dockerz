@@ -11,6 +11,26 @@ Creates a packer images for AWS
 Builds the infrastructure for the docker swarm
 
 
+## Running
+
+Status of the glusterfs volumes
+
+````
+gluster volume status 
+````
+
+Restarting a single stack service
+
+````
+$ docker stack services <stack_name>
+ID                  NAME              ...
+3xrdy2c7pfm3        stack-name_api    ...
+
+$ docker service update --force 3xrdy2c7pfm3
+````
+
+
+
 
 ## License & Authors
 - Author:: Mark Allen (mark@markcallen.com)
