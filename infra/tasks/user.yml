@@ -6,7 +6,7 @@
   - user: name={{ username }} 
           comment="User {{ username }}" 
           group=users
-          groups="docker, sudo"
+          groups="docker,sudo"
           shell=/bin/bash
 
   - name: Placing key
