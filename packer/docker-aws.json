@@ -42,19 +42,21 @@
     {
       "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
       "inline": [
+        "rm /var/lib/apt/lists/lock",
+        "rm /var/cache/apt/archives/lock",
+        "rm /var/lib/dpkg/lock",
         "apt-get update",
         "apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual",
         "apt-get install -y apt-transport-https software-properties-common curl ca-certificates",
-        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
-        "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
+        "curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -",
+        "add-apt-repository \"deb https://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main\"",
         "apt-get update",
-        "apt-get install -y docker-ce",
-        "groupadd docker",
+        "apt-get -y install docker-engine",
         "usermod -aG docker ubuntu",
         "mkdir -p /etc/systemd/system/docker.service.d",
         "mv /tmp/docker.options /etc/systemd/system/docker.service.d/override.conf",
         "systemctl enable docker",
-        "apt-get install -y python"
+        "apt-get install -y python python-requests"
       ],
       "type": "shell"
     }
