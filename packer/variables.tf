@@ -1,6 +1,6 @@
 variable "vpc_key" {
   description = "A unique identifier for the VPC."
-  default     = "dockerz-packer"
+  default     = "marka-packer"
 }
 
 variable "public_ip" {

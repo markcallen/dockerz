@@ -8,7 +8,7 @@
   },
   "builders": [
     {
-      "ami_name": "dockerz {{isotime \"2006-01-02-150405\"}}",
+      "ami_name": "marka {{isotime \"2006-01-02-150405\"}}",
       "ami_virtualization_type": "hvm",
       "associate_public_ip_address": "true",
       "instance_type": "t2.small",
@@ -17,16 +17,17 @@
       "subnet_id": "{{user `aws_subnet_id`}}",
       "source_ami_filter": {
         "filters": {
-          "name": "*ubuntu-xenial-16.04-amd64-server-*",
+          "name": "*ubuntu-bionic-18.04-amd64-server-*",
           "root-device-type": "ebs",
           "virtualization-type": "hvm"
         },
+        "owners": ["amazon"],
         "most_recent": true
       },
       "ssh_username": "ubuntu",
       "tags": {
         "OS_Version": "Ubuntu",
-        "Release": "16.04"
+        "Release": "18.04"
       },
       "type": "amazon-ebs",
       "security_group_ids": [ "{{user `aws_security_group_id`}}" ]
@@ -45,18 +46,20 @@
         "rm /var/lib/apt/lists/lock",
         "rm /var/cache/apt/archives/lock",
         "rm /var/lib/dpkg/lock",
+        "dpkg --configure -a",
         "apt-get update",
-        "apt-get install -y linux-image-extra-$(uname -r) linux-image-extra-virtual",
-        "apt-get install -y apt-transport-https software-properties-common curl ca-certificates",
-        "curl -fsSL https://yum.dockerproject.org/gpg | sudo apt-key add -",
-        "add-apt-repository \"deb https://apt.dockerproject.org/repo/ ubuntu-$(lsb_release -cs) main\"",
+        "apt-get remove docker docker-engine docker.io containerd runc",
+        "rm -f /var/lib/docker/",
+        "apt-get install -y --allow-unauthenticated apt-transport-https gnupg-agent software-properties-common curl ca-certificates",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -",
+        "add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
         "apt-get update",
-        "apt-get -y install docker-engine",
+        "apt-get -y install docker-ce docker-ce-cli containerd.io",
         "usermod -aG docker ubuntu",
         "mkdir -p /etc/systemd/system/docker.service.d",
         "mv /tmp/docker.options /etc/systemd/system/docker.service.d/override.conf",
         "systemctl enable docker",
-        "apt-get install -y python python-requests"
+        "DEBIAN_FRONTEND=noninteractive apt-get install -y python python-requests"
       ],
       "type": "shell"
     }
